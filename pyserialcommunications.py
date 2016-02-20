@@ -62,7 +62,7 @@ def fona_command(commandlist):
                 last_command = command
 
             #Handles message data sent to FONA (excludes data sent using message:)
-            elif command.find("data:"):
+            elif command.find("data:") != -1:
                 message = command[command.find(':') + 1:]
                 fona_write(message + chr(26))
                 last_out = fona_read('Data')
@@ -95,7 +95,7 @@ def fona_error(instr, error):
 # Reads messages and returns strings to be printed by fona_print
 def fona_read(instr):
     out = ''
-    time.sleep(1)
+    time.sleep(2)
     #Read every byte in the file
     while ser.inWaiting() > 0:
         tmp = ser.read(1)

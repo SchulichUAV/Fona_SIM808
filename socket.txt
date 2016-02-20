@@ -18,7 +18,7 @@ AT+SAPBR=3,1,"PWD","fido"
 AT+SAPBR=1,1
 expect:OK
 #Check connection and get current IP
-wait:3
+wait:10
 AT+CIICR
 wait:1
 AT+CIFSR
