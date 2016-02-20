@@ -10,9 +10,9 @@ AT+CIPSTATUS
 AT+SAPBR=3,1,"CONTYPE","GPRS"
 #APN LOGIN
 AT+SAPBR=3,1,"APN","rogers-core-appl1.apn"
-AT+CSTT="ltemobile.apn","",""
-AT+SAPBR=3,1,"USER",""
-AT+SAPBR=3,1,"PWD",""
+AT+CSTT=“internet.fido.ca”,””,””
+AT+SAPBR=3,1,”fido”,””
+AT+SAPBR=3,1,”fido”,””
 #Start connection
 AT+SAPBR=1,1
 expect:OK
