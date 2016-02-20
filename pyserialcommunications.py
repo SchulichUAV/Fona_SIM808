@@ -4,6 +4,7 @@ import os
 
 # Use python 3
 # Serial AT Commands Handbook: http://simcom.ee/documents/SIM808/SIM800%20Series_AT%20Command%20Manual_V1.09.pdf
+# test by ming1
 
 ser = serial.Serial(
     port='/dev/ttyUSB0',
