@@ -197,10 +197,10 @@ if __name__ == '__main__':
 
         # Direct messages the fona to perform an AT command
         elif (uinput.find('message:') != -1):
-           nummsg = uinput[uinput.find(':') + 1:] 
-           number = nummsg[:nummsg.find(':')]
-           message =  nummsg[nummsg.find(':') + 1:]
-           fona_message(number, message)
+            nummsg = uinput[uinput.find(':') + 1:] 
+            number = nummsg[:nummsg.find(':')]
+            message =  nummsg[nummsg.find(':') + 1:]
+            fona_message(number, message)
             a = fona_read('Message Sent')
             fona_print(a)
 
