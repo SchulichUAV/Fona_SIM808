@@ -47,19 +47,22 @@ def fona_command(commandlist):
                 1
             elif command.find("expect:") != -1:
                 recieve = command[command.find(':') + 1:]
-                if recieve.rstrip() == last_out.rstrip():
+                if last_out.find(recieve.rstrip()):
                     fona_print("Expect Passed")
                 else:
-                    fona_print("Unexpected return to previous command: " + last_command.rstrip())
+                    fona_print("Unexpected return to previous command: " + last_command.rstrip()) + "\n" + last_out
                     return False
             elif command.find("message:") != -1:
-                nummsg = uinput[uinput.find(':') + 1:] 
+                nummsg = command[command.find(':') + 1:] 
                 number = nummsg[:nummsg.find(':')]
                 message =  nummsg[nummsg.find(':') + 1:]
                 fona_message(number, message)
+            elif command.find("data:"):
+                message = command[command.find(':') + 1:]
+                fona_write(message + chr(26))
             elif command.find("wait:") != -1:
-                recieve = command[command.find(':') + 1:]
-                time.sleep(float(recieve.rstrip()))
+                wait = command[command.find(':') + 1:]
+                time.sleep(float(wait.rstrip()))
             else:
                 fona_print(command.rstrip())
                 fona_write(command)
