@@ -1,7 +1,11 @@
+#Check if connected
+AT
+expect:OK
 #Starts GPRS
 AT+CGATT=1
 AT+CIPSHUT
 expect:SHUT OK
+AT+CIPSTATUS
 #Enable GPRS login service
 AT+SAPBR=3,1,"CONTYPE","GPRS"
 #APN LOGIN
@@ -11,21 +15,16 @@ AT+SAPBR=3,1,"USER",""
 AT+SAPBR=3,1,"PWD",""
 #Start connection
 AT+SAPBR=1,1
+expect:OK
 #Check connection and get current IP
 wait:3
 AT+CIICR
+wait:1
 AT+CIFSR
 #Start HTTP service
-AT+HTTPINIT
-AT+HTTPPARA="CID",1
-AT+HTTPPARA="UA","FONA"
-AT+HTTPPARA="URL","http://d4.victorz.ca/bs?"
-AT+HTTPACTION=0
-AT+HTTPREAD=0,319488
-AT+HTTPREAD
-AT+HTTPPARA="URL","http://d4.victorz.ca/bs?t"
-AT+HTTPACTION=0
-AT+HTTPREAD
+AT+CIPSTART="TCP","","80"
+expect:CONNECT OK
+AT+CIPSEND
+data:TEST MESSAGE
 AT+CIPSHUT
 expect:SHUT OK
-
