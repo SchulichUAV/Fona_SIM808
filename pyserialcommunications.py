@@ -4,7 +4,7 @@ import os
 
 # Use python 3
 # Serial AT Commands Handbook: http://simcom.ee/documents/SIM808/SIM800%20Series_AT%20Command%20Manual_V1.09.pdf
-
+# Created by Calder, copyright 2016!
 ser = serial.Serial(
     port='/dev/ttyUSB0',
     baudrate=115200,
