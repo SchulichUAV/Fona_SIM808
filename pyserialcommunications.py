@@ -5,22 +5,13 @@ import os
 # Use python 3
 # Serial AT Commands Handbook: http://simcom.ee/documents/SIM808/SIM800%20Series_AT%20Command%20Manual_V1.09.pdf
 
-ser = serial.Serial(
-    port='/dev/ttyUSB0',
-    baudrate=115200,
-    #parity=serial.PARITY_ODD,
-    stopbits=serial.STOPBITS_ONE,
-    bytesize=serial.EIGHTBITS
-)
-
-# Instructions
-print('Enter your commands below.\r\nInsert "exit" to leave the application.\r\nInsert "read:filename" to execute a text file command.\r\nInsert "loop:filename" to repeat the same text file command')
-
+# Logs instr to file
 def log(instr):
     with open('log.txt', 'a') as l:
         l.write(instr)
     l.close()
 
+# Logs instr to file is global variable mode != 1
 def fona_print(instr):
     if mode == 1:
         print(instr)
@@ -28,6 +19,7 @@ def fona_print(instr):
         print(instr)
         log(instr.rstrip() + '\n')
 
+# Sends an SMS using the Fona
 def fona_message(number, message):
     fona_write('AT+CMGF=1')
     a = fona_read('AT+CMGF SET')
@@ -36,54 +28,79 @@ def fona_message(number, message):
     a = fona_read('AT+CMGS SET')
     fona_print(a)
     fona_write(message + chr(26))
-    a = fona_read('Message Sent')
-    fona_print(a)
 
+# Main parsing for commandlists
 def fona_command(commandlist):
     if listcheck(commandlist):
         for command in commandlist:
+
+            #Skips "commented" lines
             if command.find("#") == 0:
-                #Skips "commented" lines
-                1
+                last_command = command
+
+            #Handles when you want to check expected returns and exits if the expect fails
             elif command.find("expect:") != -1:
                 recieve = command[command.find(':') + 1:]
                 if last_out.find(recieve.rstrip()):
                     fona_print("Expect Passed")
+                    last_command = command
                 else:
                     fona_print("Unexpected return to previous command: " + last_command.rstrip()) + "\n" + last_out
                     return False
+
+            #Handles when a message needs to be sent
             elif command.find("message:") != -1:
                 nummsg = command[command.find(':') + 1:] 
                 number = nummsg[:nummsg.find(':')]
                 message =  nummsg[nummsg.find(':') + 1:]
                 fona_message(number, message)
+                last_out = fona_read('Message Sent')
+                fona_print(last_out)
+                last_command = command
+
+            #Handles message data sent to FONA (excludes data sent using message:)
             elif command.find("data:"):
                 message = command[command.find(':') + 1:]
                 fona_write(message + chr(26))
+                last_out = fona_read('Data')
+                fona_print(last_out)
+                last_command = command
+
+            #Handles wait commands to pause execution and allow time for the Fona to respond
             elif command.find("wait:") != -1:
                 wait = command[command.find(':') + 1:]
                 time.sleep(float(wait.rstrip()))
+                last_command = command
+
+            #Otherwise pass the AT command as a raw command
             else:
                 fona_print(command.rstrip())
                 fona_write(command)
                 last_out = fona_read(command)
                 fona_print(last_out)
                 last_command = command
+
+                #If an error is returned 
                 if last_out.find('ERROR') != -1:
                     return False
         return True
 
+# Handles error messages 
 def fona_error(instr, error):
     return 'ERROR: Fona responded with: \n' + error.rstrip() + ' \n To command: ' + instr.rstrip()
 
+# Reads messages and returns strings to be printed by fona_print
 def fona_read(instr):
     out = ''
     time.sleep(1)
+    #Read every byte in the file
     while ser.inWaiting() > 0:
         tmp = ser.read(1)
         tmp = tmp.decode("utf8")
         if tmp != '':
             out += tmp
+
+    #Handles extraneous circumstances
     if out.find('ERROR') != -1:
         return fona_error(instr, out)    
     elif out != '':
@@ -91,6 +108,7 @@ def fona_read(instr):
     else:
         return "No Message Received: Ensure the device is connected and powered up"
 
+# Writes bytes to fona to command
 def fona_write(instr):
     i = strcheck(instr)
     if (i == 0):
@@ -103,6 +121,7 @@ def fona_write(instr):
     ser.write(out)
     return 
 
+# Checks to see if the input is a string or bytes
 def strcheck(instr):
     if (type(instr) == str):
         return 0
@@ -111,12 +130,14 @@ def strcheck(instr):
     else: 
         return 2
 
+# Check to see if input is a list
 def listcheck(commandlist):
     if (type(commandlist) == list):
         return True
     fona_print("Invalid commandlist")
     return False
 
+# Loads a text file of commands that can be read by the parsing engine
 def loadcommandfile(path):
     try:
         with open(path, 'r') as f:
@@ -127,7 +148,23 @@ def loadcommandfile(path):
         fona_print('Error reading file')
         return
 
-def main():
+# Setup serial connection:
+#TODO: Auto detect dev port
+ser = serial.Serial(
+    port='/dev/ttyUSB0',
+    baudrate=115200,
+    #parity=serial.PARITY_ODD,
+    stopbits=serial.STOPBITS_ONE,
+    bytesize=serial.EIGHTBITS
+)
+
+# Instructions
+print('Enter your commands below.\r\nInsert "exit" to leave the application.\r\nInsert "read:filename" to execute a text file command.\r\nInsert "loop:filename" to repeat the same text file command')
+
+global mode 
+mode = 0
+
+if __name__ == '__main__':
     uinput='AT'
     while 1 :
         # get keyboard input
@@ -161,12 +198,10 @@ def main():
            number = nummsg[:nummsg.find(':')]
            message =  nummsg[nummsg.find(':') + 1:]
            fona_message(number, message)
+            a = fona_read('Message Sent')
+            fona_print(a)
 
         else:
             fona_write(uinput)
             out = fona_read(uinput)
             fona_print(out)
-
-global mode 
-mode = 0
-main()
