@@ -4,6 +4,8 @@ import os
 
 # Use python 3
 # Serial AT Commands Handbook: http://simcom.ee/documents/SIM808/SIM800%20Series_AT%20Command%20Manual_V1.09.pdf
+# Created by Calder, copyright 2016!
+# test by ming1
 
 # Logs instr to file
 def log(instr):
