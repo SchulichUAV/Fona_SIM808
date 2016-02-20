@@ -32,9 +32,6 @@ def fona_message(number, message):
     fona_write('AT+CMGF=1')
     a = fona_read('AT+CMGF SET')
     fona_print(a)
-    #fona_write('AT+CSMP=17,167,0,16')
-    #a = fona_read('AT+CSMP SET')
-    #fona_print(a)
     fona_write('AT+CMGS="' + number + '"')
     a = fona_read('AT+CMGS SET')
     fona_print(a)
@@ -55,6 +52,11 @@ def fona_command(commandlist):
                 else:
                     fona_print("Unexpected return to previous command: " + last_command.rstrip())
                     return False
+            elif command.find("message:") != -1:
+                nummsg = uinput[uinput.find(':') + 1:] 
+                number = nummsg[:nummsg.find(':')]
+                message =  nummsg[nummsg.find(':') + 1:]
+                fona_message(number, message)
             elif command.find("wait:") != -1:
                 recieve = command[command.find(':') + 1:]
                 time.sleep(float(recieve.rstrip()))
