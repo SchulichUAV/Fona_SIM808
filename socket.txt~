@@ -11,7 +11,6 @@ AT+CIPMUX=0
 #AT+SAPBR=3,1,"CONTYPE","GPRS"
 #APN LOGIN
 #AT+SAPBR=3,1,"APN","internet.fido.ca"
-AT+CSTT="internet.fido.ca","fido","fido"
 #AT+SAPBR=3,1,"USER","fido"
 #AT+SAPBR=3,1,"PWD","fido"
 #Start connection
