@@ -19,10 +19,10 @@ AT+CSTT="internet.fido.ca","fido","fido"
 #expect:OK
 #Check connection and get current IP
 AT+CIICR
-wait:10
+wait:5
 AT+CIFSR
 #Start HTTP service
-AT+CIPSTART="TCP","136.159.49.115","80"
+AT+CIPSTART="TCP","207.228.78.85","80"
 expect:CONNECT OK
 AT+CIPSEND
 data:TEST MESSAGE

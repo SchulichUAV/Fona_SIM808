@@ -3,7 +3,7 @@ import sys
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-server_address = ('10.13.168.8', 80)
+server_address = ('207.228.78.85', 80)
 
 print("Starting up on %s port %s" % server_address)
 

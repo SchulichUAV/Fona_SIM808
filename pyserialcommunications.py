@@ -154,7 +154,7 @@ def loadcommandfile(path):
 # Setup serial connection:
 #TODO: Auto detect dev port
 ser = serial.Serial(
-    port='/dev/ttyUSB0',
+    port='/dev/ttyUSB1',
     baudrate=115200,
     #parity=serial.PARITY_ODD,
     stopbits=serial.STOPBITS_ONE,
