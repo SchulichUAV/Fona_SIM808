@@ -16,7 +16,7 @@ while True:
 	connection, client_address = sock.accept()
 
 	try:
-		print("Connection from " + str(client_address))
+		print("Connection from " + str(client_address)
 
 		while True:
 			data = connection.recv(16)

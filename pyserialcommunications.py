@@ -69,6 +69,15 @@ def fona_command(commandlist):
                 fona_print(last_out)
                 last_command = command
 
+            #Handles HTTP requests:
+            elif command.find("post:") != -1:
+                url = command[command.find(':') + 1:]
+                cond = data_stream(url)
+                if !cond:
+                    os.system("echo kill")
+                else:
+                    fona_read('Data Stream Closed')
+
             #Handles wait commands to pause execution and allow time for the Fona to respond
             elif command.find("wait:") != -1:
                 wait = command[command.find(':') + 1:]
@@ -150,6 +159,41 @@ def loadcommandfile(path):
     except IOError:
         fona_print('Error reading file')
         return
+
+def data_stream(URL):
+    fona_print('AT+HTTPPARA="CID", 1')
+    a = fona_read("CID")
+    print(a)
+    fona_print('AT+HTTPPARA="UA", "FONA"')
+    a = fona_read("UA")
+    print(a)
+    fona_print('AT+HTTPPARA="URL", "' + str(URL) + '"')
+    a = fona_read("URL")
+    print(a)
+    f = true
+    while f:
+        msg = get_content()
+        if msg.find('exit') != -1:
+            return True
+        fona_print('AT+HTTPPARA="CONTENT", "'+ str(msg) +'"')
+        a1 = fona_read("CONTENT")
+        print(a1)
+        fona_print('AT+HTTPDATA=' + str(len(msg)) + ', 10000')
+        a2 = fona_read("KBS")
+        print(a2)
+        fona_print('AT+HTTPACTION=1')
+        a3 = fona_read("POST")
+        print(a3)
+        fona_print('AT+HTTPREAD')
+        a4 = fona_read("RESPONSE")
+        print(a4)
+        if a4.find("0") != -1:
+            f = false
+            return f
+
+def get_content():
+    mssg = input('Print Message Here:\n>> ')
+    return mssg
 
 # Setup serial connection:
 #TODO: Auto detect dev port
