@@ -1,6 +1,7 @@
 import time
 import serial
 import os
+import datetime
 
 # Use python 3
 # Serial AT Commands Handbook: http://simcom.ee/documents/SIM808/SIM800%20Series_AT%20Command%20Manual_V1.09.pdf
@@ -73,8 +74,9 @@ def fona_command(commandlist):
             elif command.find("post:") != -1:
                 url = command[command.find(':') + 1:]
                 cond = data_stream(url)
-                if !cond:
-                    os.system("echo kill")
+                if not cond:
+                    1
+                    #os.system("echo kill")
                 else:
                     fona_read('Data Stream Closed')
 
@@ -104,7 +106,7 @@ def fona_error(instr, error):
 # Reads messages and returns strings to be printed by fona_print
 def fona_read(instr):
     out = ''
-    time.sleep(2)
+    time.sleep(1)
     #Read every byte in the file
     while ser.inWaiting() > 0:
         tmp = ser.read(1)
@@ -130,6 +132,7 @@ def fona_write(instr):
         out = instr
     else:
         return 'Type error in fona_write'
+    #print(out)
     ser.write(out)
     return 
 
@@ -161,39 +164,60 @@ def loadcommandfile(path):
         return
 
 def data_stream(URL):
-    fona_print('AT+HTTPPARA="CID", 1')
+    fona_write('AT+HTTPPARA="CID",1')
     a = fona_read("CID")
-    print(a)
-    fona_print('AT+HTTPPARA="UA", "FONA"')
+    fona_print(a)
+    fona_write('AT+HTTPPARA="UA","FONA"')
     a = fona_read("UA")
-    print(a)
-    fona_print('AT+HTTPPARA="URL", "' + str(URL) + '"')
+    fona_print(a)
+    z = 'AT+HTTPPARA="URL","'+str(URL[:len(URL)-1])+'"'
+    #fona_write('AT+HTTPPARA="URL","http://68.146.253.35:5005/"')
+    fona_write(z)
     a = fona_read("URL")
-    print(a)
-    f = true
+    fona_print(a)
+    f = True
     while f:
         msg = get_content()
         if msg.find('exit') != -1:
             return True
-        fona_print('AT+HTTPPARA="CONTENT", "'+ str(msg) +'"')
-        a1 = fona_read("CONTENT")
-        print(a1)
-        fona_print('AT+HTTPDATA=' + str(len(msg)) + ', 10000')
+        #fona_write('AT+HTTPPARA="CONTENT","/server_input"')
+        #a1 = fona_read("CONTENT")
+        #fona_print(a1)
+        fona_write('AT+HTTPDATA='+str(len(msg))+',10000')
         a2 = fona_read("KBS")
-        print(a2)
-        fona_print('AT+HTTPACTION=1')
+        fona_print(a2)
+        time.sleep(1)
+        ser.write(bytes(msg.encode("utf8")))
+        at = fona_read("data")
+        fona_print(at)
+        print(msg)
+        time.sleep(9)
+        fona_write('AT+HTTPACTION=1')
+        time.sleep(2)
         a3 = fona_read("POST")
-        print(a3)
-        fona_print('AT+HTTPREAD')
+        fona_print(a3)
+        fona_write('AT+HTTPREAD')
+        print("Response")
         a4 = fona_read("RESPONSE")
-        print(a4)
-        if a4.find("0") != -1:
-            f = false
-            return f
+        fona_print(a4)
+        fona_write('AT+HTTPACTION=0')
+        time.sleep(2)
+        a3 = fona_read("GET")
+        fona_print(a3)
+        fona_write('AT+HTTPREAD')
+        print("Response")
+        a4 = fona_read("RESPONSE")
+        fona_print(a4)
+        
+        return 
+        #if a4.find("0") != -1:
+        #    f = False
+        #    return f
 
 def get_content():
-    mssg = input('Print Message Here:\n>> ')
-    return mssg
+    #mssg = input('Print Message Here:\n>> ')
+    mssg = str(datetime.datetime.now())
+    return '{"date":"' + str(mssg) + '"}' + chr(0) + chr(26)
 
 # Setup serial connection:
 #TODO: Auto detect dev port

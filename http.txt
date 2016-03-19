@@ -3,29 +3,32 @@ AT
 expect:OK
 #Starts GPRS
 AT+CGATT=1
+#AT+SAPBR=0,1
+#AT+HTTPTERM
 AT+CIPSHUT
 expect:SHUT OK
 AT+CIPSTATUS
-AT+CIPMUX=0 
+#AT+CIPMUX=0 
 #Enable GPRS login service
-#AT+SAPBR=3,1,"CONTYPE","GPRS"
+AT+SAPBR=3,1,"CONTYPE","GPRS"
 #APN LOGIN
-#AT+SAPBR=3,1,"APN","internet.fido.ca"
+AT+SAPBR=3,1,"APN","internet.fido.ca"
 AT+CSTT="internet.fido.ca","fido","fido"
-#AT+SAPBR=3,1,"USER","fido"
-#AT+SAPBR=3,1,"PWD","fido"
+AT+SAPBR=3,1,"USER","fido"
+AT+SAPBR=3,1,"PWD","fido"
 #Start connection
-#AT+SAPBR=1,1
+AT+SAPBR=1,1
 #expect:OK
 #Check connection and get current IP
 AT+CIICR
 expect:OK
-wait:5
 AT+CIFSR
 #Start HTTP service
 AT+HTTPINIT
 expect:OK
-post:68.146.253.35:5005
+post:http://68.146.253.35:5005/
+#post:http://d4.victorz.ca/bs?
+AT+SAPBR=0,1
 AT+HTTPTERM
 expect:OK
 AT+CIPSHUT

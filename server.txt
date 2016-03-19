@@ -1,0 +1,20 @@
+#Check if connected
+AT
+expect:OK
+#Starts GPRS
+AT+CIPMODE=0
+AT+CGATT=1
+AT+CIPSHUT
+expect:SHUT OK
+AT+CIPSTATUS
+AT+IPR=57600
+#AT+IFC=2,2
+#AT+CIPMODE=1
+#Enable GPRS login service
+AT+CSTT="internet.fido.ca","fido","fido"
+#Check connection and get current IP
+AT+CIICR
+expect:OK
+wait:5
+AT+CIFSR
+AT+CIPSERVER=1,8008
