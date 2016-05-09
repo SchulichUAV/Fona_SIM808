@@ -5,4 +5,5 @@ To Dos:
 - Revise into a class structure
 - Solve connectivity issues on Windows
 - Clean up code
-- OPtimize interpreting
+- Optimize interpreting
+
